@@ -1,0 +1,76 @@
+# Network
+# eth0: management
+# eth1: guest data
+# eth2: public
+#
+# After ./stack.sh, make sure that eth1 and eth2 are properly setup in OVS:
+# sudo ovs-vsctl add-br br-eth1
+# sudo ovs-vsctl add-port br-eth1 eth1
+# sudo ovs-vsctl add-port br-ex eth2
+
+# Set this to your management IP
+HOST_IP=10.0.3.1
+
+disable_service n-net
+enable_service n-cpu
+enable_service rabbit
+enable_service q-svc
+enable_service q-agt
+enable_service q-dhcp
+enable_service q-l3
+enable_service q-meta
+enable_service q-lbaas
+enable_service q-metering
+enable_service neutron
+enable_service q-vpn
+# Uncomment to disable Horizon
+disable_service horizon
+# Enable cinder
+enable_service cinder
+enable_service c-api
+enable_service c-sch
+
+enable_service ceilometer-acompute ceilometer-acentral ceilometer-collector ceilometer-api
+#enable_service ceilometer-alarm-notifier ceilometer-alarm-evaluator
+
+disable_service n-net
+#disable_service n-cpu
+# Disable cinder volume
+disable_service c-vol
+
+# Uncomment if you need tempest
+enable_service tempest
+
+Q_PLUGIN=ml2
+Q_ML2_PLUGIN_MECHANISM_DRIVERS=openvswitch,hyperv
+ENABLE_TENANT_VLANS=True
+TENANT_VLAN_RANGE=500:1000
+PHYSICAL_NETWORK=physnet1
+OVS_ENABLE_TUNNELING=False
+OVS_BRIDGE_MAPPINGS=physnet1:br-eth1
+OVS_PHYSICAL_BRIDGE=br-eth1
+PUBLIC_INTERFACE_DEFAULT=eth2
+GUEST_INTERFACE_DEFAULT=eth1
+
+VOLUME_BACKING_FILE_SIZE=50000M
+
+LIBVIRT_TYPE=kvm
+
+SCREEN_LOGDIR=$DEST/logs/screen
+
+DATABASE_PASSWORD=Passw0rd
+RABBIT_PASSWORD=Passw0rd
+SERVICE_TOKEN=Passw0rd
+SERVICE_PASSWORD=Passw0rd
+ADMIN_PASSWORD=Passw0rd
+
+VERBOSE=True
+
+API_RATE_LIMIT=False
+
+RECLONE=yes
+
+CINDER_SECURE_DELETE=False
+LOG_COLOR=False
+
+LIVE_MIGRATION_AVAILABLE=True
