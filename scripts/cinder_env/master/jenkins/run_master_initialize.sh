@@ -96,6 +96,8 @@ export BRANCH=$BRANCH
 export OPENSTACK_PROJECT=$OPENSTACK_PROJECT
 export FLOATING_IP=$FLOATING_IP
 echo FLOATING_IP=$FLOATING_IP > devstack_cinder_master_params.txt
+echo BRANCH=$BRANCH >> devstack_cinder_master_params.txt
+echo OPENSTACK_PROJECT=$OPENSTACK_PROJECT >> devstack_cinder_master_params.txt
 
 export DEVSTACK_SSH_KEY=$DEVSTACK_SSH_KEY
 echo $DEVSTACK_SSH_KEY
