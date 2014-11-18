@@ -66,7 +66,10 @@ $cinderConfig = (gc "$configDir\cinder.conf").replace('[DEVSTACK_IP]', "$devstac
 
 Set-Content $configDir\cinder.conf $cinderConfig
 if ($? -eq $false){
-    Throw "Error writting $templateDir\cinder.conf"
+    Throw "Error writting $configDir\cinder.conf"
 }
+
+cp "$templateDir\policy.json" "$configDir\" 
+cp "$templateDir\interfaces.template" "$configDir\"
 
 Invoke-WMIMethod -path win32_process -name create -argumentlist "$scriptdir\cinder_env\Cinder\scripts\run_openstack_service.bat $pythonDir\Scripts\cinder-volume $configDir\cinder.conf U:\$hostname\cinder-console.log"
