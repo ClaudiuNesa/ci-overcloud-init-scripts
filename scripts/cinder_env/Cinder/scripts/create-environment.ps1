@@ -14,6 +14,7 @@ $configDir = "C:\cinder\etc\cinder"
 $templateDir = "$scriptdir\cinder_env\Cinder\templates"
 $cinderTemplate = "$templateDir\cinder.conf"
 $pythonDir = "C:\Python27"
+$lockPath = "C:\Openstack\locks"
 $hostname = hostname
 
 . "$scriptdir\cinder_env\Cinder\scripts\utils.ps1"
@@ -53,6 +54,11 @@ ExecRetry {
 $hasLogDir = Test-Path U:\$hostname
 if ($hasLogDir -eq $false){
     mkdir U:\$hostname
+}
+
+$hasLockPaths = Test-Path $lockPath
+if ($hasLockPaths -eq $false){
+	mkdir $lockPath
 }
 
 ExecRetry {
