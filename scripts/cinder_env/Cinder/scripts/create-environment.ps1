@@ -61,6 +61,8 @@ if ($hasLockPaths -eq $false){
 	mkdir $lockPath
 }
 
+pip install -r C:\cinder\requirements.txt
+
 ExecRetry {
     cmd.exe /C $scriptdir\cinder_env\Cinder\scripts\install_openstack_from_repo.bat C:\$projectName
     if ($LastExitCode) { Throw "Failed to install cinder from repo" }
