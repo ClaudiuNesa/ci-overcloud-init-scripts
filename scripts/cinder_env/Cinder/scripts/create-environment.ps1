@@ -61,6 +61,10 @@ if ($hasLockPaths -eq $false){
 	mkdir $lockPath
 }
 
+# Workaround  for posix_ipc issue
+Copy-Item $scriptdir\cinder_env\Cinder\dependencies\posix_ipc-0.9.8-py2.7.egg-info C:\Python27\Lib\site-packages
+Copy-Item $scriptdir\cinder_env\Cinder\dependencies\posix_ipc.pyd C:\Python27\Lib\site-packages
+
 pip install -r C:\cinder\requirements.txt
 
 ExecRetry {
