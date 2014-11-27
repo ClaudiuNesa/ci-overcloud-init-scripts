@@ -39,8 +39,8 @@ fi
 
 sed -i 's/^public_network_id =.*/public_network_id = '$EXTNETID1'/g' "$TEMPEST_CONF"
 sed -i 's/^allow_tenant_isolation =.*/allow_tenant_isolation = True/g' "$TEMPEST_CONF"
-sed -i 's/^#vendor_name=Open Source/vendor_name=Microsoft/g' "$TEMPEST_CONF"
-sed -i 's/^#backup=true/backup=false/g' "$TEMPEST_CONF"
+sed -i 's/^#vendor_name = Open Source/vendor_name = Microsoft/g' "$TEMPEST_CONF"
+sed -i 's/^#backup = true/backup = false/g' "$TEMPEST_CONF"
 sed -i 's/^build_timeout =.*/build_timeout = 900/g' "$TEMPEST_CONF"
 sed -i 's/^ssh_timeout =.*/ssh_timeout = 900/g' "$TEMPEST_CONF"
 

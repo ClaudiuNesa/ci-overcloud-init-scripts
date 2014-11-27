@@ -13,17 +13,18 @@ $configDir = "C:\cinder\etc\cinder"
 $templateDir = "$scriptdir\cinder_env\master\Cinder\templates"
 $cinderTemplate = "$templateDir\cinder.conf"
 $pythonDir = "C:\Python27"
+$lockPath = "C:\Openstack\locks"
 $hostname = hostname
 
 . "$scriptdir\cinder_env\master\Cinder\scripts\utils.ps1"
 
+$hasCinder = Test-Path "C:/$projectName"
 $hasCinderTemplate = Test-Path $cinderTemplate
-$hasConfigDir = Test-Path $configDir
 
 $ErrorActionPreference = "SilentlyContinue"
 
-if ($hasProject -eq $false){
-    Throw "$projectName repository was not found."
+if ($hasCinder -eq $false){
+    Throw "$projectName repository was not found. Please run gerrit-git-prep for this project first"
 }
 
 if ($hasCinderTemplate -eq $false){
@@ -52,12 +53,25 @@ if ($hasLogDir -eq $false){
     mkdir U:\$hostname
 }
 
+$hasLockPaths = Test-Path $lockPath
+if ($hasLockPaths -eq $false){
+    mkdir $lockPath
+}
+
+# Workaround  for posix_ipc issue
+Copy-Item $scriptdir\cinder_env\Cinder\dependencies\posix_ipc-0.9.8-py2.7.egg-info C:\Python27\Lib\site-packages
+Copy-Item $scriptdir\cinder_env\Cinder\dependencies\posix_ipc.pyd C:\Python27\Lib\site-packages
+
+easy_install-2.7.exe lxml
+pip install networkx
+pip install futures
+pip install -r C:\cinder\requirements.txt
+
 ExecRetry {
     cmd.exe /C $scriptdir\cinder_env\master\Cinder\scripts\install_openstack_from_repo.bat C:\$projectName
     if ($LastExitCode) { Throw "Failed to install cinder from repo" }
 }
 
-#mkdir C:\ImageConversionDir
 Copy-Item $templateDir\cinder.conf $configDir\cinder.conf
 $cinderConfig = (gc "$configDir\cinder.conf").replace('[DEVSTACK_IP]', "$devstackIP").Replace('[LOGDIR]', "U:\$hostname")
 
@@ -65,5 +79,8 @@ Set-Content $configDir\cinder.conf $cinderConfig
 if ($? -eq $false){
     Throw "Error writting $templateDir\cinder.conf"
 }
+
+cp "$templateDir\policy.json" "$configDir\" 
+cp "$templateDir\interfaces.template" "$configDir\"
 
 Invoke-WMIMethod -path win32_process -name create -argumentlist "$scriptdir\cinder_env\master\Cinder\scripts\run_openstack_service.bat $pythonDir\Scripts\cinder-volume $configDir\cinder.conf U:\$hostname\cinder-console.log"

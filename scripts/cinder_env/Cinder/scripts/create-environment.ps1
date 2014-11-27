@@ -9,7 +9,6 @@ $projectName = $buildFor.split('/')[-1]
 $openstackDir = "C:\Openstack"
 $scriptdir = "C:\ci-overcloud-init-scripts\scripts"
 $baseDir = "$scriptdir\devstack"
-$buildDir = "$openstackDir\build\openstack"
 $configDir = "C:\cinder\etc\cinder"
 $templateDir = "$scriptdir\cinder_env\Cinder\templates"
 $cinderTemplate = "$templateDir\cinder.conf"
@@ -19,14 +18,12 @@ $hostname = hostname
 
 . "$scriptdir\cinder_env\Cinder\scripts\utils.ps1"
 
-$hasProject = Test-Path $buildDir
-$hasCinder = Test-Path $buildDir\$projectName
+$hasCinder = Test-Path "C:/$projectName"
 $hasCinderTemplate = Test-Path $cinderTemplate
-$hasConfigDir = Test-Path $configDir
 
 $ErrorActionPreference = "SilentlyContinue"
 
-if ($hasProject -eq $false){
+if ($hasCinder -eq $false){
     Throw "$projectName repository was not found. Please run gerrit-git-prep for this project first"
 }
 
@@ -75,7 +72,6 @@ ExecRetry {
     if ($LastExitCode) { Throw "Failed to install cinder from repo" }
 }
 
-#mkdir C:\ImageConversionDir
 Copy-Item $templateDir\cinder.conf $configDir\cinder.conf
 $cinderConfig = (gc "$configDir\cinder.conf").replace('[DEVSTACK_IP]', "$devstackIP").Replace('[LOGDIR]', "U:\$hostname")
 
