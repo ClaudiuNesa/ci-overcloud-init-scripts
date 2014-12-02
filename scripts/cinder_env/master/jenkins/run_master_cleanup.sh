@@ -73,20 +73,14 @@ LOGS_SSH_KEY=/var/lib/jenkins/jenkins-master/norman.pem
 export LOGS_SSH_KEY=$LOGS_SSH_KEY
 LOGS_DEST_FOLDER=$BUILD_ID
 export LOGS_DEST_FOLDER=$BUILD_ID
-RESULT="SUCCESS"
-CLASS_TYPE="pass"
-
-if [ $FAILURE != 0 ]
-then
-    RESULT="FAIL"
-	CLASS_TYPE="fail"
-fi
 
 echo "Collecting logs"
 ssh -o "UserKnownHostsFile /dev/null" -o "StrictHostKeyChecking no" -i $DEVSTACK_SSH_KEY ubuntu@$FLOATING_IP "/home/ubuntu/bin/collect_logs.sh"
 
 echo "Creating logs destination folder"
 ssh -o "UserKnownHostsFile /dev/null" -o "StrictHostKeyChecking no" -i $LOGS_SSH_KEY logs@logs.openstack.tld "if [ ! -d /srv/logs/cinder/master/$LOGS_DEST_FOLDER ]; then mkdir -p /srv/logs/cinder/master/$LOGS_DEST_FOLDER; else rm -rf /srv/logs/cinder/master/$LOGS_DEST_FOLDER/*; fi"
+# Creating path to logs destination folder
+run_ssh_cmd_with_retry logs@logs.openstack.tld $LOGS_SSH_KEY "sed -i 's/LOG_DEST_FOLDER/${LOGS_DEST_FOLDER}/g' /srv/logs/cinder/master/index.html"
 
 echo "Downloading logs"
 scp -o "UserKnownHostsFile /dev/null" -o "StrictHostKeyChecking no" -i $DEVSTACK_SSH_KEY ubuntu@$FLOATING_IP:/home/ubuntu/aggregate.tar.gz "aggregate-$NAME.tar.gz"
@@ -103,7 +97,6 @@ ssh -o "UserKnownHostsFile /dev/null" -o "StrictHostKeyChecking no" -i $LOGS_SSH
 echo "Fixing permissions on all log files"
 ssh -o "UserKnownHostsFile /dev/null" -o "StrictHostKeyChecking no" -i $LOGS_SSH_KEY logs@logs.openstack.tld "chmod a+rx -R /srv/logs/cinder/master/$LOGS_DEST_FOLDER/"
 
-run_ssh_cmd_with_retry logs@logs.openstack.tld $LOGS_SSH_KEY "sed -i 's/<!--tr-->/<!--tr-->\n<tr class=\\\"${CLASS_TYPE}Class\\\">\n\t<td class=\\\"testname\\\"><center>${BUILD_ID}<\/center><\/td>\n\t<td class=\\\"small\\\"><center>${RESULT}<\/center><\/td>\n\t<td class=\\\"small\\\"><a href=\\\"${LOGS_DEST_FOLDER}\/\\\">Logs<\/a><\/td>\n<\/tr>\n/g' /srv/logs/cinder/master/index.html"
 
 echo "Releasing devstack floating IP"
 nova remove-floating-ip "$NAME" "$FLOATING_IP"
